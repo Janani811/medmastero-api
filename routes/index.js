@@ -1,9 +1,7 @@
-var express = require('express');
-var router = express.Router();
+const UserType = require("./user_type");
+const Auth = require("./auth");
 
-/* GET home page. */
-router.get('/', function(req, res, next) {
-  res.render('index', { title: 'Express' });
-});
-
-module.exports = router;
+module.exports = function routes(app) {
+  app.use('/user-type',UserType);
+  app.use('/auth', Auth);
+}
