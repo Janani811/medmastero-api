@@ -8,8 +8,8 @@ const auth = require('./auth.service')();
 
 // login
 router.post("/login", [
-    check('email').not().isEmpty(),
-    check('password').not().isEmpty(),
+    check('email').isEmail().withMessage('Invalid email address'),
+    check('password').not().isEmpty().withMessage('Enter your password.'),
 ], controller.login);
 
 // signup user.

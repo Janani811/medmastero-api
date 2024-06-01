@@ -1,16 +1,22 @@
 const UserModel = require("../user/user.model");
 
 const authHelper = require("./auth.helper");
+const { validationResult } = require('express-validator');
 
 // login user
 const login = async (req, res) => {
     // check if email or password send there in body or not
-    if (!req.body.email || !req.body.password) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        let validationError = [];
+        for (let error of errors.array()) {
+            validationError.push({
+                message: error.msg,
+                field: error.path
+            })
+        }
         return res.status(400).json({
-            message: !req.body.email
-                ? 'Enter your email address.'
-                : 'Enter your password.',
-            field: !req.body.password ? 'password' : 'email',
+            validationError,
             status: false,
         });
     }
