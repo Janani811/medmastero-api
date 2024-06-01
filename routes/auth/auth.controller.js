@@ -52,7 +52,7 @@ const login = async (req, res) => {
         const jwtToken = authHelper.createJWTToken(user);
 
         //save token in cookie
-        res.cookie('authcookie', jwtToken, { expires: new Date(new Date().getTime() + 3 * 24 * 60 * 60 * 1000), httpOnly: true });
+        res.cookie('authcookie', jwtToken, { expires: new Date(new Date().getTime() + 3 * 24 * 60 * 60 * 1000), httpOnly: true,secure:true });
         res.cookie('authenticatedCookie', user.us_id, { expires: new Date(new Date().getTime() + 3 * 24 * 60 * 60 * 1000), httpOnly: false });
 
 
