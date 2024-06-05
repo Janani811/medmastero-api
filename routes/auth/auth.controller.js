@@ -2,21 +2,16 @@ const UserModel = require("../user/user.model");
 
 const authHelper = require("./auth.helper");
 const { validationResult } = require('express-validator');
+const { validate } = require("./auth.method");
+const { v4 } = require("uuid");
 
 // login user
 const login = async (req, res) => {
     // check if email or password send there in body or not
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        let validationError = [];
-        for (let error of errors.array()) {
-            validationError.push({
-                message: error.msg,
-                field: error.path
-            })
-        }
+    const error = await validate(req);
+    if (Object.keys(error).length) {
         return res.status(400).json({
-            validationError,
+            validationError: error,
             status: false,
         });
     }
@@ -52,7 +47,7 @@ const login = async (req, res) => {
         const jwtToken = authHelper.createJWTToken(user);
 
         //save token in cookie
-        res.cookie('authcookie', jwtToken, { expires: new Date(new Date().getTime() + 3 * 24 * 60 * 60 * 1000), httpOnly: true,secure:true });
+        res.cookie('authcookie', jwtToken, { expires: new Date(new Date().getTime() + 3 * 24 * 60 * 60 * 1000), httpOnly: true, secure: true });
         res.cookie('authenticatedCookie', user.us_id, { expires: new Date(new Date().getTime() + 3 * 24 * 60 * 60 * 1000), httpOnly: false });
 
 
@@ -63,9 +58,11 @@ const login = async (req, res) => {
             user,
         });
     } catch (error) {
+        console.log(error.message)
         return res.status(401).json({
             status: false,
             message: 'The email address or password is incorrect.',
+            error: error.message 
         });
     }
 };
@@ -111,7 +108,7 @@ const signUp = async (req, res) => {
             message: 'User registered successfully.',
         });
     } catch (error) {
-        console.log(error)
+        console.log(error.message)
         return res
             .status(400)
             .json({ status: false, message: 'Your Registration is failed.', error: error.message });
@@ -140,4 +137,158 @@ const logout = (req, res) => {
     }
 };
 
-module.exports = { login, signUp, me, logout }
+// Reset Password
+const resetPassword = async (req, res) => {
+    try {
+        // validate email
+        const error = await validate(req);
+        if (Object.keys(error).length) {
+            return res.status(400).json({
+                validationError: error,
+                status: false,
+            });
+        }
+
+        // check if user exist
+        const userExists = await UserModel.getOne({
+            us_email: req.body.email,
+        });
+
+        if (!userExists) {
+            return res.status(400).json({
+                message: "The email address you entered couldn't be found",
+                field: 'email',
+                status: false,
+            });
+        }
+
+        // if account is not active, return message
+        if (userExists.us_is_active === 0) {
+            return res.status(403).json({
+                message:
+                    'Your account is not active.Please check email to verify your account.',
+            });
+        }
+        // update user with user password token
+        const updatedUser = await UserModel.update(
+            { us_email: req.body.email, us_is_active: 1 },
+            { us_verification_code: v4() }
+        );
+
+        // await SendGrid.sendResetPasswordMail({
+        //     us_full_name: `${updatedUser.us_full_name}`,
+        //     us_email: updatedUser.us_email,
+        //     reset_password_url: `${process.env.ROOTURL}/auth/set-password?code=${updatedUser?.us_verification_code}`,
+        // });
+
+        return res.status(200).json({
+            status: true,
+            link: `${process.env.ROOTURL}/auth/set-password?code=${updatedUser?.us_verification_code}`,
+            message: 'Password reset successfully',
+        });
+    } catch (error) {
+        console.log(error.message)
+        return res
+            .status(400)
+            .json({ status: false, message: 'Reset password is failed.', error: error.message });
+    }
+};
+
+// Validate the token from reset password through email 
+const validatePasswordToken = async (req, res) => {
+    try {
+        // Error validation
+        const error = await validate(req);
+        if (Object.keys(error).length) {
+            return res.status(400).json({
+                validationError: error,
+                status: false,
+            });
+        }
+
+        // check if user found in the code from query
+        const user = await UserModel.getOne({
+            us_verification_code: req.query.code,
+            us_is_active: 1,
+        });
+
+        // if not, return error message
+        if (!user) {
+            return res
+                .status(401)
+                .json({
+                    validationError: [{
+                        message: 'Verification code not found',
+                        field: 'code',
+                       
+                    }], 
+                    status: false
+                });
+        }
+        return res.status(200).json({ status: true, user });
+    } catch (error) {
+        console.log(error.message)
+        return res.status(400).json({ status: false, error: error.message });
+    }
+};
+
+// Update Password
+const updatePassword = async (req, res) => {
+    try {
+        // Error validation
+        const error = await validate(req);
+        if (Object.keys(error).length) {
+            return res.status(400).json({
+                validationError: error,
+                status: false,
+            });
+        }
+
+        // check if password and confirm password matches or not
+        if (req.body.password !== req.body.confirmPassword) {
+            return res.status(400).json({
+                validationError: [{
+                    message: 'Confirm password mismatch',
+                    field: 'confirmPassword',
+                   
+                }], 
+                status: false
+            });
+        }
+
+        // encrypt password and salt
+        const { password, salt } = authHelper.encryptPassword(
+            req.body.password
+        );
+
+        // update user with the new password
+        if (req.query.code) {
+            await UserModel.where({
+                us_verification_code: req.query.code,
+                us_is_active: 1,
+            }).save(
+                {
+                    us_password: password,
+                    us_password_salt: salt,
+                    us_verification_code: null,
+                },
+                { patch: true }
+            );
+        }
+
+
+        return res.status(200).json({
+            status: true,
+            message: 'Password Updated Successfully',
+        });
+    } catch (error) {
+        console.log(error.message)
+        return res.status(400).json({
+            status: false,
+            message: 'Failed when resetting password',
+            error: error.message 
+        });
+    }
+};
+
+module.exports = { login, signUp, me, logout, resetPassword,validatePasswordToken, updatePassword }
