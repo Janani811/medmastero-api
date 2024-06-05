@@ -16,9 +16,9 @@ router.post("/login", [
 router.post(
     '/signup',
     [
-        check('email').not().isEmpty(),
-        check('name').not().isEmpty(),
-        check('password').not().isEmpty(),
+        check('email').isEmail().withMessage('Invalid email address'),
+        check('name').not().isEmpty().withMessage('Enter your name.'),
+        check('password').not().isEmpty().withMessage('Enter your password.'),
     ],
     controller.signUp
 );

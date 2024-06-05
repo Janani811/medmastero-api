@@ -62,7 +62,7 @@ const login = async (req, res) => {
         return res.status(401).json({
             status: false,
             message: 'The email address or password is incorrect.',
-            error: error.message 
+            error: error.message
         });
     }
 };
@@ -71,6 +71,15 @@ const login = async (req, res) => {
 // signup user
 const signUp = async (req, res) => {
     try {
+        // Error handling
+        const error = await validate(req);
+        if (Object.keys(error).length) {
+            return res.status(400).json({
+                validationError: error,
+                status: false,
+            });
+        }
+        
         // check if user exist
         const userExists = await UserModel.getOne({
             us_email: req.body.email,
@@ -217,11 +226,7 @@ const validatePasswordToken = async (req, res) => {
             return res
                 .status(401)
                 .json({
-                    validationError: [{
-                        message: 'Verification code not found',
-                        field: 'code',
-                       
-                    }], 
+                    message: 'Verification code not found',
                     status: false
                 });
         }
@@ -250,8 +255,8 @@ const updatePassword = async (req, res) => {
                 validationError: [{
                     message: 'Confirm password mismatch',
                     field: 'confirmPassword',
-                   
-                }], 
+
+                }],
                 status: false
             });
         }
@@ -286,9 +291,9 @@ const updatePassword = async (req, res) => {
         return res.status(400).json({
             status: false,
             message: 'Failed when resetting password',
-            error: error.message 
+            error: error.message
         });
     }
 };
 
-module.exports = { login, signUp, me, logout, resetPassword,validatePasswordToken, updatePassword }
+module.exports = { login, signUp, me, logout, resetPassword, validatePasswordToken, updatePassword }
