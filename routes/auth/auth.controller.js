@@ -102,12 +102,11 @@ const signUp = async (req, res) => {
             us_fullname: req.body.name,
             us_is_active: 1,
             // us_is_deleted: 0,
-            us_type: req.body.is_seller ? 3 : 4,
-            us_phone_number: req.body.phone,
+            // us_type: req.body.is_seller ? 3 : 4,
+            // us_phone_number: req.body.phone,
             us_password: password,
             us_password_salt: salt,
         };
-
 
         // create userprofile
         await UserModel.create(data);
