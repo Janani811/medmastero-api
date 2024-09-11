@@ -1,9 +1,10 @@
 const UserModel = require("../user/user.model");
 
 const authHelper = require("./auth.helper");
-const { validationResult } = require('express-validator');
+const formidable = require('formidable');
 const { validate } = require("./auth.method");
 const { v4 } = require("uuid");
+const { uploadFile, getSignedUrl } = require("../../utils/firebase-storage");
 
 // login user
 const login = async (req, res) => {
@@ -79,7 +80,7 @@ const signUp = async (req, res) => {
                 status: false,
             });
         }
-        
+
         // check if user exist
         const userExists = await UserModel.getOne({
             us_email: req.body.email,
@@ -295,4 +296,34 @@ const updatePassword = async (req, res) => {
     }
 };
 
-module.exports = { login, signUp, me, logout, resetPassword, validatePasswordToken, updatePassword }
+async function profile_photo(req, res) {
+    const { us_id } = req.user
+    //initialise formidable
+    const form = formidable.formidable({ multiple: true })
+
+    form.parse(req, async (err, fields, files) => {
+        if (err) {
+            res.status(500).json({ success: false, error: err })
+        } else {
+
+            // path to image 
+            const filePath = files['file'][0].filepath;
+
+            //set a preferred path on firebase storage
+            const remoteFilePath = 'profile/' + us_id + '_' + Date.now() + '_' + files['file'][0].originalFilename;
+
+
+
+
+            await uploadFile(filePath, remoteFilePath)
+
+            const signedUrl = await getSignedUrl(remoteFilePath);
+
+
+            //send image url back to frontend
+            res.status(200).json({ success: true, url: signedUrl });
+        }
+    })
+}
+
+module.exports = { login, signUp, me, logout, resetPassword, validatePasswordToken, updatePassword, profile_photo }

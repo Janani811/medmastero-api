@@ -52,4 +52,6 @@ router.post('/update-password',
     ],
     controller.updatePassword);
 
+router.post('/my-profile', auth.authenticate, controller.profile_photo);
+
 module.exports = router;
