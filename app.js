@@ -16,11 +16,8 @@ dotenv.config({
   path: path.join(__dirname, '.env'),
 });
 
-// create application/json parser
-var jsonParser = bodyParser.json()
-
-// create application/x-www-form-urlencoded parser
-var urlencodedParser = bodyParser.urlencoded({ extended: false })
+app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({ extended: false }))
 
 // parse various different custom JSON types as JSON
 app.use(bodyParser.json({ type: 'application/*+json' }))

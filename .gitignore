@@ -78,6 +78,8 @@ coverage/
 .env.local
 .env.*.local
 
+serviceAccountKey.json
+
 # Swagger Editor
 .swagger-codegen/
 
