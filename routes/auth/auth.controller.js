@@ -305,23 +305,32 @@ async function profile_photo(req, res) {
         if (err) {
             res.status(500).json({ success: false, error: err })
         } else {
+            try {
+                // path to image 
+                const filePath = files['file'][0].filepath;
+                //set a preferred path on firebase storage
+                const remoteFilePath = 'profile/' + us_id + '_' + Date.now() + '_' + files['file'][0].originalFilename;
+                await uploadFile(filePath, remoteFilePath);
 
-            // path to image 
-            const filePath = files['file'][0].filepath;
+                // get signed url using remoteFilePath
+                const signedUrl = await getSignedUrl(remoteFilePath);
 
-            //set a preferred path on firebase storage
-            const remoteFilePath = 'profile/' + us_id + '_' + Date.now() + '_' + files['file'][0].originalFilename;
-
-
-
-
-            await uploadFile(filePath, remoteFilePath)
-
-            const signedUrl = await getSignedUrl(remoteFilePath);
-
-
-            //send image url back to frontend
-            res.status(200).json({ success: true, url: signedUrl });
+                // update user date
+                await UserModel.where({
+                    us_id: us_id
+                }).save(
+                    {
+                        us_filepath: remoteFilePath,
+                        us_filename: files['file'][0].originalFilename,
+                        us_filetype: files['file'][0].mimetype,
+                    },
+                    { patch: true, autoRefresh: false , require: false }
+                );
+                // send image url back to frontend
+                return res.status(200).json({ success: true, url: signedUrl });
+            } catch (error) {
+                return res.status(500).json({ error: error.message, message: "Something went wrong!" });
+            }
         }
     })
 }

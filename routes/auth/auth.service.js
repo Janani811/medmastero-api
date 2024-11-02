@@ -3,6 +3,8 @@ const passportJWT = require('passport-jwt');
 
 const UserModel = require('../user/user.model');
 
+const { getSignedUrl } = require("../../utils/firebase-storage");
+
 const { Strategy: JwtStrategy } = passportJWT;
 
 // set cookie to jwt
@@ -40,9 +42,15 @@ module.exports = () => {
 
         // checks token and if valid, add a user to req object , else throws error
         authenticate: (req, res, next) =>
-            passport.authenticate('jwt', (err, user) => {
+            passport.authenticate('jwt', async (err, user) => {
                 // set user from passport
                 const loggedUser = user;
+                if (loggedUser.us_filepath) {
+                    // get signed url using us_filepath
+                    const signedUrl = await getSignedUrl(loggedUser.us_filepath);
+                    loggedUser.profile_image = signedUrl;
+                }
+
                 // set req.user (currentuser) as user
                 req.user = loggedUser;
 

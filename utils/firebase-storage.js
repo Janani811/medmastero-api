@@ -4,19 +4,13 @@ const path = require('node:path');
 
 const serviceAccount = require("../serviceAccountKey.json");
 
-
-
-
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
 });
 
 const bucket = admin.storage().bucket("gs://medmastero-62c02.appspot.com");
 
-
-
 async function uploadFile(path, remotePath, contentType) {
-
     const remoteFilePath = remotePath;
 
     // Upload the File
@@ -27,24 +21,26 @@ async function uploadFile(path, remotePath, contentType) {
         metadata: {
             firebaseStorageDownloadTokens: uuidv4(),
         }
-
     });
-
     return storage[0].metadata.mediaLink;
 }
 
 
 async function getSignedUrl(remoteFilePath) {
+    try {
+        const options = {
+            action: 'read',
+            expires: Date.now() + 24 * 60 * 60 * 1000 * 8
+        }
 
-    const options = {
-        action: 'read',
-        expires: Date.now() + 24 * 60 * 60 * 1000 * 8
+        // The right hand side returns an array of signedUrl
+        let [signedUrl, ...urls] = await bucket.file(remoteFilePath).getSignedUrl(options);
+        return signedUrl;
+    } catch (error) {
+        console.log("Error on getSignedUrl:  ", error);
+        return null;
     }
 
-    // The right hand side returns an array of signedUrl
-    let [signedUrl, ...urls] = await bucket.file(remoteFilePath).getSignedUrl(options);
-
-    return signedUrl;
 }
 
 module.exports = { getSignedUrl, uploadFile, bucket }
