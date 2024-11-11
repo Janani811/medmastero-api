@@ -1,4 +1,4 @@
-const bookshelf = require("../../db/bookshelf");
+import bookshelf from '../../db/bookshelf.js';
 
 const User = bookshelf.Model.extend({
     tableName: 'user',
@@ -52,4 +52,4 @@ function destroy(args) {
     }).destroy();
 }
 
-module.exports = User;
+export default User;

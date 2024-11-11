@@ -1,10 +1,14 @@
-const router = require("express").Router();
+import express from 'express';
 
-const authService = require("../auth/auth.service")();
-const controller = require("./user.controller");
+
+import authServiceFactory from '../auth/auth.service.js';
+import controller from './user.controller.js';
+
+const router = express.Router()
+const authService = authServiceFactory();
 
 
 // update personal profile
 router.post('/', authService.authenticate, controller.updateUser);
 
-module.exports = router;
+export default router;

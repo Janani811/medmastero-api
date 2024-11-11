@@ -1,8 +1,10 @@
-const router = require("express").Router();
+import express from 'express';
+
+const router = express.Router()
 
 // Public access
 router.get('/', (req, res) => {
     res.status(200).send("MEDMASTERO API")
 });
 
-module.exports = router;
+export default router;

@@ -1,8 +1,14 @@
-const admin = require("firebase-admin");
-const { v4: uuidv4 } = require('uuid');
-const path = require('node:path');
+import admin from 'firebase-admin';
+import { v4 as uuidv4 } from 'uuid';
 
-const serviceAccount = require("../serviceAccountKey.json");
+import { readFile } from 'fs/promises';
+
+const serviceAccount = JSON.parse(
+    await readFile(
+        new URL('../serviceAccountKey.json', import.meta.url)
+    )
+);
+
 
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
@@ -43,4 +49,4 @@ async function getSignedUrl(remoteFilePath) {
 
 }
 
-module.exports = { getSignedUrl, uploadFile, bucket }
+export { getSignedUrl, uploadFile, bucket };

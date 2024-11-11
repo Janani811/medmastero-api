@@ -1,4 +1,4 @@
-const bookshelf = require("../../db/bookshelf");
+import bookshelf from '../../db/bookshelf';
 
 const Shop = bookshelf.Model.extend({
     tableName: 'shop',
@@ -52,4 +52,4 @@ function destroy(args) {
     }).destroy();
 }
 
-module.exports = Shop;
+export default Shop;
