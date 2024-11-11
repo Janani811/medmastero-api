@@ -1,4 +1,4 @@
-const bookshelf = require("../../db/bookshelf");
+import bookshelf from '../../db/bookshelf.js';
 
 const UserType = bookshelf.Model.extend({
     tableName: 'user_type',
@@ -28,4 +28,4 @@ function getAll(args) {
     }).fetchAll().then((model) => (model ? model.toJSON() : []));
 }
 
-module.exports = UserType;
+export default UserType;

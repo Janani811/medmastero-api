@@ -1,11 +1,16 @@
-const createError = require('http-errors');
-const dotenv = require('dotenv');
-const express = require('express');
-const path = require('path');
-const cookieParser = require('cookie-parser');
-const logger = require('morgan');
-const bodyParser = require('body-parser');
-const cors = require('cors')
+import createError from 'http-errors';
+import dotenv from 'dotenv';
+import express from 'express';
+import path from 'path';
+import cookieParser from 'cookie-parser';
+import logger from 'morgan';
+import bodyParser from 'body-parser';
+import cors from 'cors';
+import { fileURLToPath } from "node:url";
+
+import setInitialRoutes from "./routes/index.js"
+
+const __dirname = fileURLToPath(import.meta.url);
 
 // const indexRouter = require('./routes/index');
 // const usersRouter = require('./routes/users');
@@ -48,8 +53,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 // app.use('/', indexRouter);
-require('./routes')(app);
-
+setInitialRoutes(app)
 // // POST /login gets urlencoded bodies
 // app.post('/login', urlencodedParser, function (req, res) {
 //   res.send('welcome, ' + req.body.username)
@@ -78,4 +82,4 @@ app.use(function (err, req, res, next) {
   res.render('error');
 });
 
-module.exports = app;
+export default app;

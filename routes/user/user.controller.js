@@ -1,4 +1,4 @@
-const User = require("./user.model");
+import User from './user.model.js';
 
 // Update personal profile
 const updateUser = async (req, res) => {
@@ -33,6 +33,6 @@ const updateUser = async (req, res) => {
 
 }
 
-module.exports = {
+export default {
     updateUser
-}
+};

@@ -1,7 +1,8 @@
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
+import jwt from 'jsonwebtoken';
+import bcrypt from 'bcrypt';
+import config from '../../db/config.js';
 
-module.exports = {
+export default {
   // compare user password with hashed password from user record using bcrypt
   comparePasswords: (passwordInHand, passwordInDBHash) => {
     return new Promise((resolve, reject) => {
@@ -29,6 +30,6 @@ module.exports = {
 
   // create jwt token using JWTWebToken
   createJWTToken: (user) => {
-    return jwt.sign(user, process.env.JWT_SECRET);
+    return jwt.sign(user, config.JWT_SECRET);
   },
 };

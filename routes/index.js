@@ -1,11 +1,11 @@
-const UserType = require("./user_type");
-const Auth = require("./auth");
-const User = require("./user");
-const Public = require("./public");
+import UserType from './user_type/index.js';
+import Auth from './auth/index.js';
+import User from './user/index.js';
+import Public from './public/index.js';
 
-module.exports = function routes(app) {
+export default function routes(app) {
   app.use('/', Public)
   app.use('/user-type', UserType);
   app.use('/auth', Auth);
   app.use('/user', User);
-}
+};

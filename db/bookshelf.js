@@ -1,10 +1,9 @@
-const bookshelfJs = require('bookshelf');
-const knexJs = require('knex');
-
-const knexOptions = require('./knexfile');
+import bookshelfJs from 'bookshelf';
+import knexJs from 'knex';
+import knexOptions from './knexfile.js';
 
 const knex = knexJs(knexOptions);
 
 const bookshelf = bookshelfJs(knex);
 
-module.exports = bookshelf;
+export default bookshelf;

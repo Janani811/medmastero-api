@@ -1,8 +1,11 @@
-const router = require("express").Router();
-const { check, query } = require("express-validator");
+import express from 'express';
 
-const controller = require("./auth.controller");
-const auth = require('./auth.service')();
+import { check, query } from 'express-validator';
+import controller from './auth.controller.js';
+import authFactory from './auth.service.js';
+
+const auth = authFactory();
+const router = express.Router()
 
 // ROUTES 
 
@@ -54,4 +57,4 @@ router.post('/update-password',
 
 router.post('/my-profile', auth.authenticate, controller.profile_photo);
 
-module.exports = router;
+export default router;

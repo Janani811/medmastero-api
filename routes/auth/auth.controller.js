@@ -1,10 +1,11 @@
-const UserModel = require("../user/user.model");
+import formidable from 'formidable';
+import { v4 } from 'uuid';
 
-const authHelper = require("./auth.helper");
-const formidable = require('formidable');
-const { validate } = require("./auth.method");
-const { v4 } = require("uuid");
-const { uploadFile, getSignedUrl } = require("../../utils/firebase-storage");
+import { validate } from './auth.method.js';
+import UserModel from '../user/user.model.js';
+import authHelper from './auth.helper.js';
+import { uploadFile, getSignedUrl } from '../../utils/firebase-storage.js';
+import config from '../../db/config.js';
 
 // login user
 const login = async (req, res) => {
@@ -192,7 +193,7 @@ const resetPassword = async (req, res) => {
 
         return res.status(200).json({
             status: true,
-            link: `${process.env.ROOTURL}/auth/set-password?code=${updatedUser?.us_verification_code}`,
+            link: `${config.ROOT_URL}/auth/set-password?code=${updatedUser?.us_verification_code}`,
             message: 'Password reset successfully',
         });
     } catch (error) {
@@ -324,7 +325,7 @@ async function profile_photo(req, res) {
                         us_filename: files['file'][0].originalFilename,
                         us_filetype: files['file'][0].mimetype,
                     },
-                    { patch: true, autoRefresh: false , require: false }
+                    { patch: true, autoRefresh: false, require: false }
                 );
                 // send image url back to frontend
                 return res.status(200).json({ success: true, url: signedUrl });
@@ -335,4 +336,4 @@ async function profile_photo(req, res) {
     })
 }
 
-module.exports = { login, signUp, me, logout, resetPassword, validatePasswordToken, updatePassword, profile_photo }
+export default { login, signUp, me, logout, resetPassword, validatePasswordToken, updatePassword, profile_photo };

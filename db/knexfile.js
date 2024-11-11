@@ -1,15 +1,17 @@
+import config from "./config.js";
+
 const knexOptions = {
   client: 'pg',
   // connection: process.env.DATABASE_URL,
   connection: {
-    database: process.env.DB_DATABASE,
-    host: process.env.DB_HOST,
-    password: process.env.DB_PASSWORD,
+    database: config.DB_DATABASE,
+    host: config.DB_HOST,
+    password: config.DB_PASSWORD,
     // timezone: 'utc',
-    user: process.env.DB_USER,
+    user: config.DB_USER,
   },
 
-  debug: process.env.NODE_ENV === 'development',
+  debug: config.NODE_ENV === 'development',
   // migrations: {
   //   directory: path.join(__dirname, './migrations'),
   //   tableName: 'migrations',
@@ -19,4 +21,4 @@ const knexOptions = {
   // },
 };
 
-module.exports = knexOptions;
+export default knexOptions;

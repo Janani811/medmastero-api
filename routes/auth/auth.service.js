@@ -1,9 +1,9 @@
-const passport = require('passport');
-const passportJWT = require('passport-jwt');
+import passport from 'passport';
+import passportJWT from 'passport-jwt';
 
-const UserModel = require('../user/user.model');
-
-const { getSignedUrl } = require("../../utils/firebase-storage");
+import UserModel from '../user/user.model.js';
+import { getSignedUrl } from '../../utils/firebase-storage.js';
+import config from '../../db/config.js';
 
 const { Strategy: JwtStrategy } = passportJWT;
 
@@ -19,9 +19,9 @@ const jwtOptions = {};
 // set cookieExtractor which has req.cookie to jwtOptions.jwtFromRequest
 jwtOptions.jwtFromRequest = cookieExtractor;
 // set secret ket from env to jwtOptions.secretOrKey
-jwtOptions.secretOrKey = process.env.JWT_SECRET;
+jwtOptions.secretOrKey = config.JWT_SECRET;
 
-module.exports = () => {
+export default () => {
     // default strategy of passport
     const strategy = new JwtStrategy(jwtOptions, async (jwtPayload, next) => {
         // get us_id from jwtPayload (which has user id - from cookie)

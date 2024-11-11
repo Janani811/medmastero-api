@@ -1,4 +1,4 @@
-const bookshelf = require("../../db/bookshelf");
+import bookshelf from '../../db/bookshelf';
 
 const Gender = bookshelf.Model.extend({
     tableName: 'gender',
@@ -28,4 +28,4 @@ function getAll(args) {
     }).fetchAll().then((model) => (model ? model.toJSON() : []));
 }
 
-module.exports = Gender;
+export default Gender;
